@@ -59,8 +59,6 @@ app.get("/bin/:binId/inspect", async (req, res) => {
     binId: req.params.binId,
     requests,
   });
-
-  console.log("inspect data: ", requests);
 });
 
 app.get("/bin/:binId", async (req, res) => {

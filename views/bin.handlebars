@@ -1,23 +1,17 @@
 <h2 id="bin" data-bin={{binId}}>{{binUrl}}</h2>
 
-<ul class="request-list">
+<ul id="responses" class="request-list">
   {{#each requests}}
-    <li>
+    {{!-- <li>
       <ul class="request-headers">
         {{#each @this}}
           <li>{{{this}}}</li>
         {{/each}}
       </ul>
-    </li>
+    </li> --}}
+    {{> request}}
   {{/each}}
 </ul>
 
 <script src="/../socket.io/socket.io.js"></script>
-<script>
-  const responses = document.getElementById('responses'); const socket = io();
-  const bin = document.getElementById('bin').dataset.bin; socket.emit('bin',
-  bin); socket.on('msg', (msg) => { var item = document.createElement('li');
-  item.innerHTML = Object.entries(JSON.parse(msg)).map(([key, value]) =>
-  `<b>${key}:</b> ${value}<br>`); responses.appendChild(item);
-  window.scrollTo(0, document.body.scrollHeight); })
-</script>
+<script src="/../javascript/requests.js"></script>
