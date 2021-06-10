@@ -1,0 +1,15 @@
+<h2>Inspect HTTP Requests</h2>
+<p>RequestBin gives you a URL that will collect requests made to it and let you
+  inspect them in a human-friendly way. Use RequestBin to see what your HTTP
+  client is sending or to inspect and debug webhook requests.</p>
+<a href="/newBin">Create a RequestBin</a>
+
+<h3>Recent Bins</h3>
+
+<!-- TODO: CONSIDER ALLOWING FOR SORTING BY COUNT, CREATION DATE, OR RECENT ACTIVITY -->
+<ul>
+  {{#each bins}}
+    <!-- TODO: ADD COUNT AND POTENTIALLY TIMESTAMP -->
+    <li><a href="/bin/{{this}}/inspect">{{this}}</a></li>
+  {{/each}}
+</ul>

@@ -1,6 +1,6 @@
 -- to import this into postgresql
 -- type `psql` to get into the psql interface
--- then type `\i database_schema.sql`.
+-- then type `\i db_schema.sql`.
 -- It will create the database and connect you directly.
 
 CREATE DATABASE hookie;

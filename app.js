@@ -1,4 +1,5 @@
-const app = require("express")();
+const express = require("express");
+const app = express();
 const http = require("http").Server(app);
 const io = require("socket.io")(http);
 const expressHandlebars = require("express-handlebars");
@@ -8,23 +9,58 @@ const db = require("./lib/db");
 
 const port = process.env.PORT || 3000;
 
-io.on("connect", (socket) => {
+app.engine(
+  "handlebars",
+  expressHandlebars({
+    defaultLayout: "main",
+  })
+);
+app.set("view engine", "handlebars");
+
+app.use(express.static(__dirname + "/public"));
+
+io.on("connection", (socket) => {
   console.log("connected");
+  socket.on("bin", (bin) => {
+    socket.join(bin);
+  });
 });
 
-app.get("/", (req, res) => {
-  res.send("hookie");
+app.get("/", async (req, res) => {
+  const ip = getIp(req);
+  const user = await db.getUserByIp(ip);
+  const userBins = await db.getBinsByUser(user);
+  const userBinIds = userBins.map((bin) => bin.hex_id);
+
+  res.render("home", {
+    bins: userBinIds,
+  });
 });
 
-app.get("/createBin", async (req, res) => {
-  const ip = req.socket.address().address;
-
-  console.log("user ip: ", ip);
+app.get("/newBin", async (req, res) => {
+  const ip = getIp(req);
   const newBinId = await bin.getNewBinId();
   const result = await db.createBin(ip, newBinId);
-  console.log("testing newBinId " + newBinId);
-  console.log("db result: ", result);
-  console.log("create a request bin and return and add to database");
+
+  res.redirect(302, `/bin/${newBinId}/inspect`);
+});
+
+app.get("/bin/:binId/inspect", async (req, res) => {
+  const data = await db.getRequests(req.params.binId);
+
+  const mapKeyValue = (obj) => {
+    let keys = Object.keys(obj);
+    return keys.map((k) => `${k}:${obj[k]}`);
+  };
+  const requests = data.map((d) => mapKeyValue(d.content));
+
+  res.render("bin", {
+    binUrl: `${req.baseUrl}/${req.params.binId}`,
+    binId: req.params.binId,
+    requests,
+  });
+
+  console.log("inspect data: ", requests);
 });
 
 app.get("/bin/:binId", async (req, res) => {
@@ -39,6 +75,10 @@ app.get("/bin/:binId", async (req, res) => {
 
   console.log("sending data: ", data);
 });
+
+const getIp = (req) => {
+  return req.socket.address().address;
+};
 
 http.listen(port, () => {
   console.log("listening on port " + port);
