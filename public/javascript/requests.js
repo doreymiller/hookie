@@ -1,21 +1,23 @@
 const responses = document.getElementById("responses");
 const socket = io();
-console.log("socket ", socket);
 
 const bin = document.getElementById("bin").dataset.bin;
 socket.emit("bin", bin);
 socket.on("msg", (msg) => {
   console.log("received message", msg);
-  let item = document.createElement("li");
+  const requestItem = document.createElement("li");
+  requestItem.textContent = msg.request_time;
+  const requestHeaders = document.createElement("ul");
+  requestHeaders.className = "request-headers";
+
   const mapKeyValue = (obj) => {
     let keys = Object.keys(obj);
-    return keys.map((k) => `${k}:${obj[k]}`);
+    return keys.map((k) => `<li>${k}:${obj[k]}</li>`);
   };
-  const requests = mapKeyValue(msg);
-  item.innerHTML = requests; //ADD HANDLEBARS REQUEST PARTIAL
-  // item.innerHTML = Object.entries(JSON.parse(msg)).map(
-  //   ([key, value]) => `<b>${key}:</b> ${value}<br>`
-  // );
-  responses.appendChild(item);
+  const reqHeaderItems = mapKeyValue(msg.content);
+  console.log("reqHeaderItems: ", reqHeaderItems);
+  reqHeaderItems.innerHTML = reqHeaderItems.join("");
+  requestItem.appendChild(requestHeaders);
+  responses.appendChild(requestItem);
   window.scrollTo(0, document.body.scrollHeight);
 });

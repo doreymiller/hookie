@@ -52,7 +52,11 @@ app.get("/bin/:binId/inspect", async (req, res) => {
     let keys = Object.keys(obj);
     return keys.map((k) => `${k}:${obj[k]}`);
   };
-  const requests = data.map((d) => mapKeyValue(d.content));
+
+  const requests = data.map((d) => {
+    d.content = mapKeyValue(d.content);
+    return d;
+  });
 
   res.render("bin", {
     binUrl: `${req.baseUrl}/${req.params.binId}`,
@@ -66,10 +70,10 @@ app.get("/bin/:binId", async (req, res) => {
   const payload = JSON.stringify(req.headers);
   const data = await db.addRequestToBin(payload, binId);
 
-  io.to(binId).emit("msg", data["content"]);
+  io.to(binId).emit("msg", data);
 
   res.type("application/json");
-  res.send(data["content"]);
+  res.send(data);
 
   console.log("sending data: ", data);
 });
